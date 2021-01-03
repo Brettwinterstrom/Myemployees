@@ -27,12 +27,7 @@ class DataQueries {
     }
 
     findAllDepartments() {
-        return this.connection.query(`
-        SELECT
-           *
-        FROM
-            department
-        `);
+        return this.connection.query(`SELECT * FROM department`);
     }
 
     addDepartment(department) {
@@ -51,7 +46,9 @@ class DataQueries {
         return this.connection.end();
     }
 
-
+    findAllRoles() {
+        return this.connection.query('SELECT * FROM role')
+    }
 }
 
 module.exports = new DataQueries(connection);

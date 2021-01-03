@@ -2,6 +2,23 @@ const DataQueries = require("./db/db");
 const inquirer = require("inquirer");
 require("console.table");
 
+const util = require("util");
+const mysql = require("mysql");
+
+const connection = mysql.createConnection({
+    host: 'localhost',
+    port: 3306,
+    user: 'root',
+    password: '257789601Me$',
+    database: 'employee_trackerdb',
+});
+
+//connect to local db
+connection.connect();
+
+//make connection a promise to we can do a .then later
+connection.query = util.promisify(connection.query);
+
 function mainPrompt() {
     inquirer.prompt({
         type: "list",
@@ -155,9 +172,12 @@ function viewDepartments() {
     });
 }
 
-// function viewRoles() {
-//     mainPrompt()
-// }
+function viewRoles() {
+    DataQueries.findAllRoles().then((roles) => {
+        console.table(roles)
+    })
+    mainPrompt();
+}
 
 function viewEmployees() {
     DataQueries.findAllEmployees().then((employees) => {
@@ -166,12 +186,27 @@ function viewEmployees() {
     });
 }
 
-// function updateRoles() {
-//     mainPrompt()
-// }
+function updateRoles() {
+    inquirer.prompt([
+        {
+            message: "Enter the last name of the employee you would like to update",
+            type: "input",
+            name: "last_name"
+        }, {
+            message: "Enter the new role ID",
+            type: "number",
+            name: "role_id"
+        }
+    ]).then(function (response) {
+        connection.query("UPDATE employee SET role_id = ? WHERE last_name = ?", [response.role_id, response.last_name],
+            function (err) {
+                if (err) throw err;
+                console.log("Role succesfully updated!")
+                mainPrompt();
+            })
+    })
+}
 
 function quit() {
     DataQueries.quit();
 }
-
-
